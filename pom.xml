@@ -64,6 +64,15 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>io.snyk</groupId>
+                <artifactId>snyk-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <inherited>false</inherited>
+                <configuration>
+                  <org>asecurityguru</org>
+                </configuration>
+              </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
@@ -96,22 +105,6 @@
                     </execution>
                 </executions>
             </plugin>
-                  <build>
-        <plugins>
-            <!-- Add the Snyk Maven plugin here -->
-            <plugin>
-              <groupId>io.snyk</groupId>
-      <artifactId>snyk-maven-plugin</artifactId>
-      <version>2.0.0</version>
-      <inherited>false</inherited>
-      <configuration>
-        <org>benlmaoujoud</org>
-      </configuration>
-            </plugin>
-            <!-- Other plugins and configurations -->
-        </plugins>
-    </build>
-
         </plugins>
     </build>
 </project>
