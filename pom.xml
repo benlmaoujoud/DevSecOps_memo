@@ -63,15 +63,18 @@
 
     <build>
         <plugins>
+            <!-- Snyk Maven Plugin -->
             <plugin>
                 <groupId>io.snyk</groupId>
                 <artifactId>snyk-maven-plugin</artifactId>
                 <version>2.0.0</version>
                 <inherited>false</inherited>
                 <configuration>
-                  <org>benlmaoujoud</org>
+                    <org>benlmaoujoud</org>
                 </configuration>
-              </plugin>
+            </plugin>
+
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -84,6 +87,8 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- Google Jib Maven Plugin -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
@@ -106,5 +111,4 @@
                 </executions>
             </plugin>
         </plugins>
-    </build>
-</project>
+    </build
