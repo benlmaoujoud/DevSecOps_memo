@@ -22,6 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+
 class ProductServiceApplicationTests {
 
     @Container
@@ -44,6 +46,7 @@ class ProductServiceApplicationTests {
 
     @Test
     void shouldCreateProduct() throws Exception {
+        productRepository.deleteAll();
         ProductRequest productRequest = getProductRequest();
         String productRequestString = objectMapper.writeValueAsString(productRequest);
         mockMvc.perform(MockMvcRequestBuilders.post("/api/product")
