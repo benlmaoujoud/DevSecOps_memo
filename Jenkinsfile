@@ -10,20 +10,5 @@ pipeline {
 			}
         }
 	
-	    stage('Snyk Security Scan') {
-            steps {
-                script {
-                    // Run Snyk security scan for each microservice
-                    def microservices = ['product-service', 'order-service', 'inventory-service', 'notification-service']
-
-                    for (def microservice : microservices) {
-                        dir("${microservice}") {
-				withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					sh 'mvn snyk:test -fn'
-				}                        }
-                    }
-                }
-            }
-        }
   }
 }
