@@ -66,10 +66,10 @@
             <plugin>
                 <groupId>io.snyk</groupId>
                 <artifactId>snyk-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>3.0.0</version>
                 <inherited>false</inherited>
                 <configuration>
-                  <org>asecurityguru</org>
+                  <org>benlmaoujoud</org>
                 </configuration>
               </plugin>
             <plugin>
