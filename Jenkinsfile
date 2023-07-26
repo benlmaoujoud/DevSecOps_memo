@@ -14,22 +14,11 @@ pipeline {
         
         stage('Snyk Scan') {
             steps {
-                script {
-                    def services = ['product-service', 'order-service', 'inventory-service', 'discovery-server', 'api-gateway', 'notification-service']
-                    def scanResults = [:]
-
-                    for (service in services) {
-                        def scanOutput = sh(script: "cd ${service} && mvn snyk:test -fn", returnStdout: true) || true
-                        scanResults[service] = scanOutput.trim()
-                    }
-
-                    echo "Snyk scan results for each service:"
-                    scanResults.each { service, output ->
-                        echo "\nService: ${service}"
-                        echo output
-                    }
+                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+                    sh 'cd product-service && mvn snyk:test -fn'
                 }
             }
         }
     }
 }
+
