@@ -4,7 +4,7 @@ pipeline {
     tools {
         maven 'Maven3_5_2'
     }
-    
+
     stages {
         stage('Compile and Run SonarAnalysis') {
             steps {
@@ -14,21 +14,22 @@ pipeline {
         
         stage('Snyk Scan') {
             steps {
-
-		    script {
+                script {
                     def services = ['product-service', 'order-service', 'inventory-service', 'discovery-server', 'api-gateway', 'notification-service']
+                    def scanResults = [:]
 
                     for (service in services) {
-
-                		withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					            sh ' cd ${service} && mvn snyk:test -fn'
-				        }
-                    
+                        def scanOutput = sh(script: "cd ${service} && mvn snyk:test -fn", returnStdout: true) || true
+                        scanResults[service] = scanOutput.trim()
                     }
-                }    
-                
+
+                    echo "Snyk scan results for each service:"
+                    scanResults.each { service, output ->
+                        echo "\nService: ${service}"
+                        echo output
+                    }
+                }
             }
         }
-        
     }
 }
