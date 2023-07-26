@@ -15,11 +15,17 @@ pipeline {
         stage('Snyk Scan') {
             steps {
 
-                
-                          withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					            sh 'mvn snyk:test -fn --all-projects'
-				          }
-                        
+		    script {
+                    def services = ['product-service', 'order-service', 'inventory-service', 'discovery-server', 'api-gateway', 'notification-service']
+
+                    for (service in services) {
+
+                		withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+					            sh ' cd {service} && mvn snyk:test -fn'
+				        }
+                    
+                    }
+                }    
                 
             }
         }
