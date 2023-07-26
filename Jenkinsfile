@@ -21,7 +21,7 @@ pipeline {
                     for (service in services) {
 
                 		withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					            sh ' cd {service} && mvn snyk:test -fn'
+					            sh ' cd ${service} && mvn snyk:test -fn'
 				        }
                     
                     }
