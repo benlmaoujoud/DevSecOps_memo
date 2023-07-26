@@ -19,12 +19,11 @@ pipeline {
                     def services = ['product-service', 'order-service', 'inventory-service', 'discovery-server', 'api-gateway', 'notification-service']
 
                     for (service in services) {
-                        sh "cd ${service} && snyk test --token=${snykToken}"
+                        sh "cd ${service} && mvn snyk:test --token=${snykToken}"
                     }
                 }
             }
         }
         
-        // Add more stages for deployment or other tasks if needed
     }
 }
