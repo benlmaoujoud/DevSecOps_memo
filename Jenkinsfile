@@ -15,7 +15,7 @@ pipeline {
         stage('Snyk Scan') {
             steps {
                 withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-                    sh 'cd product-service && mvn snyk:test -fn'
+                    sh 'cd ${service} && mvn clean verify'
                 }
             }
         }
