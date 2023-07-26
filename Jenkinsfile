@@ -19,8 +19,13 @@ pipeline {
                     def services = ['product-service', 'order-service', 'inventory-service', 'discovery-server', 'api-gateway', 'notification-service']
 
                     for (service in services) {
-                        sh "cd ${service} && mvn snyk:test --token=${snykToken}"
+                          withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+					            sh ' cd ${service} &&mvn snyk:test -fn'
+				          }
+                        
                     }
+
+                    
                 }
             }
         }
