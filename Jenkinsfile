@@ -32,6 +32,26 @@ pipeline {
             }
     }
 
+	    stage('Test AWS Credentials') {
+    steps {
+        script {
+            def awsCredentials = credentials('aws-credentials') // Replace 'aws-credentials' with the ID of your Jenkins credentials containing AWS access key and secret key
+            
+            // Execute the AWS CLI command to retrieve the ECR login token
+            def awsLoginCommand = "aws ecr get-login-password --region us-west-2"
+            def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
+            
+            // Check if the token is not empty, indicating successful authentication
+            if (awsToken) {
+                echo "AWS credentials test passed. Successfully authenticated with ECR."
+            } else {
+                error "AWS credentials test failed. Unable to authenticate with ECR."
+            }
+        }
+    }
+}
+
+
 	stage('Push') {
             steps {
                 script{
