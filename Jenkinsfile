@@ -49,33 +49,37 @@ pipeline {
                 }
             }
         }
-
-          stage('Push') {
-        steps {
-            script {
-                try {
-                    def services = sh(
-                        script: 'docker-compose config --services',
-                        returnStdout: true
-                    ).trim().split('\n')
-
-                    def ecrRepoUrl = env.ECR_REPO_URL
-
-                    docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
-                        services.each { service ->
-                            def sourceImage = "${service}:latest"
-                            def targetImage = "${ecrRepoUrl}/${service}:latest"
-
-                            sh "docker tag ${sourceImage} ${targetImage}"
-                            sh "docker push ${targetImage}"
+         stage('Push') {
+            steps {
+                script {
+                    try {
+                        def ecrRepoUrl = env.ECR_REPO_URL.trim()
+                        
+                        if (!ecrRepoUrl.startsWith('https://')) {
+                            error "Invalid ECR_REPO_URL: The URL must start with 'https://'"
                         }
+
+                        def services = sh(
+                            script: 'docker-compose config --services',
+                            returnStdout: true
+                        ).trim().split('\n')
+
+                        docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
+                            services.each { service ->
+                                def sourceImage = "${service}:latest"
+                                def targetImage = "${ecrRepoUrl}/${service}:latest"
+
+                                sh "docker tag ${sourceImage} ${targetImage}"
+                                sh "docker push ${targetImage}"
+                            }
+                        }
+                    } catch (Exception e) {
+                        error "Failed to push Docker images to ECR: ${e.message}"
                     }
-                } catch (Exception e) {
-                    error "Failed to push Docker images to ECR: ${e.message}"
                 }
             }
         }
-    }
+   
 
     }
 }
