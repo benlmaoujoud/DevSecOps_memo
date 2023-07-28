@@ -22,17 +22,25 @@ pipeline {
                 
             }
         }
-	stage('Build and Push Docker Images') {
+	stage('Build') { 
+            steps { 
+               withDockerRegistry([credentialsId: "dockerlogin", url: ""]) {
+                 script{
+                 sh 'docker-compose build'
+                 }
+               }
+            }
+    }
+
+	stage('Push') {
             steps {
-                sh 'mvn clean package -DskipTests'
-                sh 'docker-compose build'
-                script {
-                    def ecrRegistry = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
-                    def awsCredentials = 'ecr:us-west-2:aws-credentials'
-                    sh "docker-compose push --push-option=aws_region=us-west-2 --push-option=aws_credentials=${awsCredentials} --push-option=aws_ecr_registry=${ecrRegistry}"
+                script{
+                    docker.withRegistry('https://145988340565.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:aws-credentials') {
+                    sh 'docker-compose push'
+                    }
                 }
             }
-        }
+    	}
 
     }
 }
