@@ -61,7 +61,7 @@ pipeline {
             steps {
                 script{
                     docker.withRegistry('ECR_REPO_URL', 'ecr:us-west-2:aws-credentials') {
-                    sh 'docker-compose push'
+                        sh "docker-compose config --services | while read service; do docker tag ${service}:latest ${ECR_REPO_URL}/${service}:latest; docker push ${ECR_REPO_URL}/${service}:latest; done"
                     }
                 }
             }
