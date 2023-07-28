@@ -19,7 +19,7 @@ pipeline {
 
         stage('Snyk Scan') {
             steps {
-       
+       			// don't forget to add all  services  !!!!!!!!!!!!!!!!!!
                        withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
 					            sh 'cd product-service && mvn snyk:test -fn'
 				        }
@@ -40,9 +40,8 @@ pipeline {
 	    stage('Test AWS Credentials') {
     steps {
         script {
-            def awsCredentials = credentials('aws-credentials') // Replace 'aws-credentials' with the ID of your Jenkins credentials containing AWS access key and secret key
-            
-            // Execute the AWS CLI command to retrieve the ECR login token
+            def awsCredentials = credentials('aws-credentials') 
+
             def awsLoginCommand = "aws ecr get-login-password --region us-west-2"
             def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
             
@@ -65,7 +64,7 @@ pipeline {
                 returnStdout: true
             ).trim().split('\n')
 
-            def ecrRepoUrl = env.ECR_REPO_URL // Get the value of the ECR_REPO_URL environment variable
+            def ecrRepoUrl = env.ECR_REPO_URL 
 
             docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
                 services.each { service ->
