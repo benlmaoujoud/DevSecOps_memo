@@ -4,11 +4,11 @@ pipeline {
     tools {
         maven 'Maven3_5_2'
     }
-     environment {
+    
+    environment {
         AWS_REGION = 'us-west-2'
         ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com/benlmaoujoud'
     }
-
 
     stages {
         stage('Compile and Run SonarAnalysis') {
@@ -19,67 +19,58 @@ pipeline {
 
         stage('Snyk Scan') {
             steps {
-       			// don't forget to add all  services  !!!!!!!!!!!!!!!!!!
-                       withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					            sh 'cd product-service && mvn snyk:test -fn'
-				        }
-                    
-                
-            }
-        }
-	stage('Build') { 
-            steps { 
-               withDockerRegistry([credentialsId: "dockerlogin", url: ""]) {
-                 script{
-                 sh 'docker-compose build'
-                 }
-               }
-            }
-    }
-
-	    stage('Test AWS Credentials') {
-    steps {
-        script {
-            def awsCredentials = credentials('aws-credentials') 
-
-            def awsLoginCommand = "aws ecr get-login-password --region us-west-2"
-            def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
-            
-
-            if (awsToken) {
-                echo "AWS credentials test passed. Successfully authenticated with ECR."
-            } else {
-                error "AWS credentials test failed. Unable to authenticate with ECR."
-            }
-        }
-    }
-}
-
-
-	stage('Push') {
-    steps {
-        script {
-            def services = sh(
-                script: 'docker-compose config --services',
-                returnStdout: true
-            ).trim().split('\n')
-
-            def ecrRepoUrl = env.ECR_REPO_URL 
-
-            docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
-                services.each { service ->
-                    def sourceImage = "${service}:latest"
-                    def targetImage = "${ecrRepoUrl}/${service}:latest"
-
-                    sh "docker tag ${sourceImage} ${targetImage}"
-                    sh "docker push ${targetImage}"
+                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+                    sh 'cd product-service && mvn snyk:test -fn'
                 }
             }
         }
-    }
-}
 
+        stage('Build') {
+            steps {
+                withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
+                    sh 'docker-compose build'
+                }
+            }
+        }
 
+        stage('Test AWS Credentials') {
+            steps {
+                script {
+                    def awsCredentials = credentials('aws-credentials')
 
+                    def awsLoginCommand = "aws ecr get-login-password --region ${env.AWS_REGION}"
+                    def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
+
+                    if (awsToken) {
+                        echo "AWS credentials test passed. Successfully authenticated with ECR."
+                    } else {
+                        error "AWS credentials test failed. Unable to authenticate with ECR."
+                    }
+                }
+            }
+        }
+
+        stage('Push') {
+            steps {
+                script {
+                    def services = sh(
+                        script: 'docker-compose config --services',
+                        returnStdout: true
+                    ).trim().split('\n')
+
+                    def ecrRepoUrl = env.ECR_REPO_URL
+
+                    docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
+                        services.each { service ->
+                            def sourceImage = "${service}:latest"
+                            def targetImage = "${ecrRepoUrl}/${service}:latest"
+
+                            sh "docker tag ${sourceImage} ${targetImage}"
+                            sh "docker push ${targetImage}"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
