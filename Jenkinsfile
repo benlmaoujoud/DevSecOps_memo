@@ -22,5 +22,24 @@ pipeline {
                 
             }
         }
+	 stage('Build') { 
+            steps { 
+               withDockerRegistry([credentialsId: "dockerlogin", url: ""]) {
+                 script{
+                 app =  docker.build("benlmaoujoud")
+                 }
+               }
+            }
+    }
+
+  	stage('Push') {
+            steps {
+                script{
+                    docker.withRegistry('https://079084503647.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:aws-credentials') {
+                    app.push("latest")
+                    }
+                }
+            }
+      }
     }
 }
