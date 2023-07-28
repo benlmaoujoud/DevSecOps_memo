@@ -41,7 +41,7 @@ pipeline {
             def awsLoginCommand = "aws ecr get-login-password --region us-west-2"
             def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
             
-            // Check if the token is not empty, indicating successful authentication
+
             if (awsToken) {
                 echo "AWS credentials test passed. Successfully authenticated with ECR."
             } else {
