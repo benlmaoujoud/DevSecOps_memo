@@ -6,7 +6,7 @@ pipeline {
     }
      environment {
         AWS_REGION = 'us-west-2'
-        ECR_REPO_URL = 'https://145988340565.dkr.ecr.us-west-2.amazonaws.com/benlmaoujoud'
+        ECR_REPO_URL = 'https://079084503647.dkr.ecr.us-west-2.amazonaws.com/benlmaoujoud'
     }
 
 
