@@ -50,9 +50,10 @@ pipeline {
             }
         }
 
-        stage('Push') {
-            steps {
-                script {
+          stage('Push') {
+        steps {
+            script {
+                try {
                     def services = sh(
                         script: 'docker-compose config --services',
                         returnStdout: true
@@ -69,8 +70,12 @@ pipeline {
                             sh "docker push ${targetImage}"
                         }
                     }
+                } catch (Exception e) {
+                    error "Failed to push Docker images to ECR: ${e.message}"
                 }
             }
         }
+    }
+
     }
 }
