@@ -4,6 +4,11 @@ pipeline {
     tools {
         maven 'Maven3_5_2'
     }
+     environment {
+        AWS_REGION = 'us-west-2'
+        ECR_REPO_URL = 'https://145988340565.dkr.ecr.us-west-2.amazonaws.com/benlmaoujoud'
+    }
+
 
     stages {
         stage('Compile and Run SonarAnalysis') {
@@ -55,7 +60,7 @@ pipeline {
 	stage('Push') {
             steps {
                 script{
-                    docker.withRegistry('https://145988340565.dkr.ecr.us-west-2.amazonaws.com/benlmaoujoud', 'ecr:us-west-2:aws-credentials') {
+                    docker.withRegistry('ECR_REPO_URL', 'ecr:us-west-2:aws-credentials') {
                     sh 'docker-compose push'
                     }
                 }
