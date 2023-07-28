@@ -58,14 +58,25 @@ pipeline {
 
 
 	stage('Push') {
-            steps {
-                script{
-                    docker.withRegistry(ECR_REPO_URL, 'ecr:us-west-2:aws-credentials') {
-                        sh "docker-compose config --services | while read service; do docker tag ${service}:latest ${ECR_REPO_URL}/${service}:latest; docker push ${ECR_REPO_URL}/${service}:latest; done"
-                    }
-                }
-            }
-    	}
+	    steps {
+	        script {
+	            def services = sh(
+	                script: 'docker-compose config --services',
+	                returnStdout: true
+	            ).trim().split('\n')
+	
+	            def ecrRepoUrl = env.ECR_REPO_URL // Get the value of the ECR_REPO_URL environment variable
+	
+	            docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
+	                services.each { service ->
+	                    sh "docker tag ${service}:latest ${ecrRepoUrl}/${service}:latest"
+	                    sh "docker push ${ecrRepoUrl}/${service}:latest"
+	                }
+	            }
+        }
+    }
+}
+
 
     }
 }
