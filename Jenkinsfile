@@ -28,9 +28,8 @@ pipeline {
         stage('Build') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
-                  input message: 'Confirm Docker System Prune', parameters: [booleanParam(defaultValue: true, description: 'Confirm Docker System Prune', name: 'confirm')]
-                  sh 'docker system prune -a --volumes'
-
+                    input message: 'Confirm Docker System Prune', parameters: [booleanParam(defaultValue: true, description: 'Confirm Docker System Prune', name: 'confirm')]
+                    sh 'docker system prune -a --volumes'
                     sh 'docker-compose build'
                     sh 'docker images'
                 }
@@ -41,7 +40,6 @@ pipeline {
             steps {
                 script {
                     def awsCredentials = credentials('aws-credentials')
-
                     def awsLoginCommand = "aws ecr get-login-password --region ${env.AWS_REGION}"
                     def awsToken = sh(script: awsLoginCommand, returnStdout: true).trim()
 
@@ -54,14 +52,11 @@ pipeline {
             }
         }
 
-     stage('Push') {
-    steps {
-        script {
-
-            
-            try {
-                def ecrRepoUrl = env.ECR_REPO_URL.trim()
-                def SERVICES = [
+        stage('Push') {
+            steps {
+                script {
+                    def ecrRepoUrl = env.ECR_REPO_URL.trim()
+                    def SERVICES = [
                         'notification-service',
                         'product-service',
                         'order-service',
@@ -70,24 +65,16 @@ pipeline {
                         'api-gateway'
                     ]
 
-                if (!ecrRepoUrl.startsWith('https://')) {
-                    error "Invalid ECR_REPO_URL: The URL must start with 'https://'"
-                }
 
-                docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
-                    SERVICES.each { service ->
-                        def targetImage = "${ecrRepoUrl}/benlmaoujoud:latest"
-                        sh "docker tag ${service} ${targetImage}"
-                        sh "docker push ${targetImage}"
+                    docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
+                        SERVICES.each { service ->
+                            def targetImage = "${ecrRepoUrl}/benlmaoujoud:latest"
+                            sh "docker tag ${service} ${targetImage}"
+                            sh "docker push ${targetImage}"
+                        }
                     }
                 }
-            } catch (Exception e) {
-                error "Failed to push Docker images to ECR: ${e.message}"
             }
         }
     }
 }
-
-    }
-}
-
