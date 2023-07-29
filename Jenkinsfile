@@ -8,15 +8,6 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
-       SERVICES = [
-            "notification-service",
-            "product-service",
-            "order-service",
-            "inventory-service",
-            "discovery-server",
-            "api-gateway"
-        ]
-
     }
 
     stages {
@@ -66,6 +57,14 @@ pipeline {
         stage('Push Docker Images to ECR') {
             steps {
                 script {
+                      def SERVICES = [
+                        'notification-service',
+                        'product-service',
+                        'order-service',
+                        'inventory-service',
+                        'discovery-server',
+                        'api-gateway'
+                    ]
                     SERVICES.each { serviceName ->
                         pushImageToECR(serviceName)
                     }
