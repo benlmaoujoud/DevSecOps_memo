@@ -86,4 +86,5 @@ def pushImageToECR(String serviceName) {
     } catch (Exception e) {
         error "Failed to push ${serviceName} image to ECR: ${e.message}"
     }
+    }
 }
