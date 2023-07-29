@@ -8,6 +8,14 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
+            SERVICES = [
+            'notification-service',
+            'product-service',
+            'order-service',
+            'inventory-service',
+            'discovery-server',
+            'api-gateway'
+        ]
     }
 
     stages {
@@ -28,7 +36,7 @@ pipeline {
         stage('Build') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
-                    sh'docker system prune -a --volumes'
+                    echo 'yes' | sh 'docker system prune -a --volumes'
                     sh 'docker-compose build'
                     sh'docker images'
                 }
@@ -51,33 +59,31 @@ pipeline {
                 }
             }
         }
-         stage('Push') {
+      stage('Push Docker Images to ECR') {
             steps {
                 script {
-                    try {
-                        def ecrRepoUrl = env.ECR_REPO_URL.trim()
-                        
-                        def services = sh(
-                            script: 'docker-compose config --services',
-                            returnStdout: true
-                        ).trim().split('\n')
-
-                        docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
-                            services.each { service ->
-                                def sourceImage = "${service}:latest"
-                                def targetImage = "${ecrRepoUrl}/benlmaoujoud/${service}:latest" 
-
-                                sh "docker tag ${sourceImage} ${targetImage}"
-                                sh "docker push ${targetImage}"
-                            }
-                        }
-                    } catch (Exception e) {
-                        error "Failed to push Docker images to ECR: ${e.message}"
+                    SERVICES.each { serviceName ->
+                        pushImageToECR(serviceName)
                     }
                 }
             }
-        }
    
+    }
+}
 
+def pushImageToECR(String serviceName) {
+    try {
+        def ecrRepoUrl = env.ECR_REPO_URL.trim()
+        def imageTag = sh(
+            script: "docker images --format '{{.Repository}}:{{.Tag}}' microservices-tutorial/${serviceName}",
+            returnStdout: true
+        ).trim()
+
+        docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
+            sh "docker tag ${imageTag} ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
+            sh "docker push ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
+        }
+    } catch (Exception e) {
+        error "Failed to push ${serviceName} image to ECR: ${e.message}"
     }
 }
