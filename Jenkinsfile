@@ -57,12 +57,12 @@ pipeline {
                 script {
                     def ecrRepoUrl = env.ECR_REPO_URL.trim()
                     def SERVICES = [
-                        'notification-service',
-                        'product-service',
-                        'order-service',
-                        'inventory-service',
-                        'discovery-server',
-                        'api-gateway'
+                        'microservices-tutorial/notification-service',
+                        'microservices-tutorial/product-service',
+                        'microservices-tutorial/order-service',
+                        'microservices-tutorial/inventory-service',
+                        'microservices-tutorial/discovery-server',
+                        'microservices-tutorial/api-gateway'
                     ]
 
 
