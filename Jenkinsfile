@@ -8,14 +8,15 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
-        SERVICES = [
-            'notification-service',
-            'product-service',
-            'order-service',
-            'inventory-service',
-            'discovery-server',
-            'api-gateway'
+       SERVICES = [
+            "notification-service",
+            "product-service",
+            "order-service",
+            "inventory-service",
+            "discovery-server",
+            "api-gateway"
         ]
+
     }
 
     stages {
@@ -36,7 +37,9 @@ pipeline {
         stage('Build') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
-                    echo 'yes' | sh 'docker system prune -a --volumes'
+                  input message: 'Confirm Docker System Prune', parameters: [booleanParam(defaultValue: true, description: 'Confirm Docker System Prune', name: 'confirm')]
+                  sh 'docker system prune -a --volumes'
+
                     sh 'docker-compose build'
                     sh 'docker images'
                 }
