@@ -54,10 +54,14 @@ pipeline {
             }
         }
 
-        stage('Push Docker Images to ECR') {
-            steps {
-                script {
-                      def SERVICES = [
+     stage('Push') {
+    steps {
+        script {
+
+            
+            try {
+                def ecrRepoUrl = env.ECR_REPO_URL.trim()
+                def SERVICES = [
                         'notification-service',
                         'product-service',
                         'order-service',
@@ -65,32 +69,25 @@ pipeline {
                         'discovery-server',
                         'api-gateway'
                     ]
-                    SERVICES.each { serviceName ->
-                        pushImageToECR(serviceName)
+
+                if (!ecrRepoUrl.startsWith('https://')) {
+                    error "Invalid ECR_REPO_URL: The URL must start with 'https://'"
+                }
+
+                docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
+                    SERVICES.each { service ->
+                        def targetImage = "${ecrRepoUrl}/benlmaoujoud:latest"
+                        sh "docker tag ${service} ${targetImage}"
+                        sh "docker push ${targetImage}"
                     }
                 }
+            } catch (Exception e) {
+                error "Failed to push Docker images to ECR: ${e.message}"
             }
         }
     }
 }
 
-def pushImageToECR(String serviceName) {
-    try {
-        def ecrRepoUrl = env.ECR_REPO_URL.trim()
-        def imageTag = sh(
-            script: "docker images --format '{{.Repository}}:{{.Tag}}' microservices-tutorial/${serviceName}",
-            returnStdout: true
-        ).trim()
-
-        if (imageTag) {
-            docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
-                sh "docker tag ${imageTag} ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
-                sh "docker push ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
-            }
-        } else {
-            error "Docker image tag not found for ${serviceName}"
-        }
-    } catch (Exception e) {
-        error "Failed to push ${serviceName} image to ECR: ${e.message}"
     }
 }
+
