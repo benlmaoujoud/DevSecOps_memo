@@ -60,7 +60,7 @@ pipeline {
                             returnStdout: true
                         ).trim().split('\n')
 
-                        docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
+                        docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
                             services.each { service ->
                                 def sourceImage = "${service}:latest"
                                 def targetImage = "${ecrRepoUrl}/benlmaoujoud/${service}:latest" 
