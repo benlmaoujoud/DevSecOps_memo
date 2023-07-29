@@ -7,7 +7,7 @@ pipeline {
     
     environment {
         AWS_REGION = 'us-west-2'
-        ECR_REPO_URL = 'https://079084503647.dkr.ecr.us-west-2.amazonaws.com'
+        ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
     }
 
     stages {
@@ -55,10 +55,6 @@ pipeline {
                     try {
                         def ecrRepoUrl = env.ECR_REPO_URL.trim()
                         
-                        if (!ecrRepoUrl.startsWith('https://')) {
-                            error "Invalid ECR_REPO_URL: The URL must start with 'https://'"
-                        }
-
                         def services = sh(
                             script: 'docker-compose config --services',
                             returnStdout: true
@@ -67,8 +63,7 @@ pipeline {
                         docker.withRegistry(ecrRepoUrl, 'ecr:us-west-2:aws-credentials') {
                             services.each { service ->
                                 def sourceImage = "${service}:latest"
-                                def targetImage = "${ecrRepoUrl}/benlmaoujoud/${service}:latest" // Separate repository name from the service
-
+                                def targetImage = "${ecrRepoUrl}/benlmaoujoud/${service}:latest" 
 
                                 sh "docker tag ${sourceImage} ${targetImage}"
                                 sh "docker push ${targetImage}"
