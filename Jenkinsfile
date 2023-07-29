@@ -28,7 +28,9 @@ pipeline {
         stage('Build') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
+                    sh'docker system prune -a --volumes'
                     sh 'docker-compose build'
+                    sh'docker images'
                 }
             }
         }
