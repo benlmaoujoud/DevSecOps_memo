@@ -8,7 +8,7 @@ pipeline {
     environment {
         AWS_REGION = 'us-west-2'
         ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
-            SERVICES = [
+        SERVICES = [
             'notification-service',
             'product-service',
             'order-service',
@@ -38,7 +38,7 @@ pipeline {
                 withDockerRegistry([credentialsId: 'dockerlogin', url: '']) {
                     echo 'yes' | sh 'docker system prune -a --volumes'
                     sh 'docker-compose build'
-                    sh'docker images'
+                    sh 'docker images'
                 }
             }
         }
@@ -59,7 +59,8 @@ pipeline {
                 }
             }
         }
-      stage('Push Docker Images to ECR') {
+
+        stage('Push Docker Images to ECR') {
             steps {
                 script {
                     SERVICES.each { serviceName ->
@@ -67,7 +68,7 @@ pipeline {
                     }
                 }
             }
-   
+        }
     }
 }
 
@@ -79,12 +80,15 @@ def pushImageToECR(String serviceName) {
             returnStdout: true
         ).trim()
 
-        docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
-            sh "docker tag ${imageTag} ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
-            sh "docker push ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
+        if (imageTag) {
+            docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
+                sh "docker tag ${imageTag} ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
+                sh "docker push ${ecrRepoUrl}/microservices-tutorial/${serviceName}:latest"
+            }
+        } else {
+            error "Docker image tag not found for ${serviceName}"
         }
     } catch (Exception e) {
         error "Failed to push ${serviceName} image to ECR: ${e.message}"
-    }
     }
 }
