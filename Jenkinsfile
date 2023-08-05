@@ -52,29 +52,22 @@ pipeline {
             }
         }
 
-        stage('Push') {
-            steps {
-                script {
-                    def ecrRepoUrl = env.ECR_REPO_URL.trim()
-                    def SERVICES = [
-                        'microservices-tutorial/notification-service',
-                        'microservices-tutorial/product-service',
-                        'microservices-tutorial/order-service',
-                        'microservices-tutorial/inventory-service',
-                        'microservices-tutorial/discovery-server',
-                        'microservices-tutorial/api-gateway'
-                    ]
+       stage('Push to ECR') {
+    steps {
+        script {
+            def ecrRepoUrl = env.ECR_REPO_URL.trim()
+            def composeServices = sh(script: "docker-compose config --services", returnStdout: true).trim().split('\n')
 
-
-                    docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
-                        SERVICES.each { service ->
-                            def targetImage = "${ecrRepoUrl}/benlmaoujoud:latest"
-                            sh "docker tag ${service} ${targetImage}"
-                            sh "docker push ${targetImage}"
-                        }
-                    }
+            docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
+                composeServices.each { service ->
+                    def sourceImage = "${service}:latest"
+                    def targetImage = "${ecrRepoUrl}/${service}:latest"
+                    sh "docker tag ${sourceImage} ${targetImage}"
+                    sh "docker push ${targetImage}"
                 }
             }
         }
+    }
+}
     }
 }
