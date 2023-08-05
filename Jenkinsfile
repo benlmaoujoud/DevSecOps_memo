@@ -13,6 +13,13 @@ pipeline {
     stages {
         
 
+stage('Download and Install ZAP') {
+    steps {
+        sh 'wget -q -O ZAP_2.10.0_Crossplatform.zip https://github.com/zaproxy/zaproxy/releases/download/v2.10.0/ZAP_2.10.0_Crossplatform.zip'
+        sh 'unzip ZAP_2.10.0_Crossplatform.zip'
+        sh 'chmod +x zap.sh'
+    }
+}
 
    
 
@@ -22,10 +29,6 @@ pipeline {
     steps {
         script {
 
-             sh 'wget -q -O zap.sh https://github.com/zaproxy/zaproxy/releases/download/v2.10.0/ZAP_2.10.0_Crossplatform.zip'
-             sh 'unzip zap.zip'
-             sh 'chmod +x zap.sh'
-    
                 // Replace the following URL with the actual URL of your application
                 def targetUrl = 'http://35.88.88.115:8080'
     
