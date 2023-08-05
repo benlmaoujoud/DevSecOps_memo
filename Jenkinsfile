@@ -25,6 +25,8 @@ pipeline {
     
                 // Run OWASP ZAP scanning
                 sh "zap.sh -cmd -quickurl ${targetUrl} -quickout zap-report.html"
+                archiveArtifacts artifacts: 'zap-report.html'
+
         }
     }
 }
