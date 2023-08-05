@@ -24,8 +24,9 @@ pipeline {
                 def targetUrl = 'http://35.88.88.115:8080'
     
                 // Run OWASP ZAP scanning
-                sh "zap.sh -cmd -quickurl ${targetUrl} -quickout zap-report.html"
-                archiveArtifacts artifacts: 'zap-report.html'
+             def output = sh(script: 'zap.sh -cmd -quickurl ${targetUrl} -quickout zap-report.html 2>&1', returnStdout: true)
+             println "ZAP Output: ${output}"
+
 
         }
     }
