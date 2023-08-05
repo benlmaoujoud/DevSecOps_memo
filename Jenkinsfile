@@ -1,36 +1,17 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven3_5_2'
-    }
-    
-    environment {
-        AWS_REGION = 'us-west-2'
-        ECR_REPO_URL = '079084503647.dkr.ecr.us-west-2.amazonaws.com'
-    }
-
     stages {
-        
-   
-
-      
-
-         stage('OWASP ZAP Scan') {
-    steps {
-        script {
-
-                // Replace the following URL with the actual URL of your application
-                def targetUrl = 'http://35.88.88.115:8080'
-    
-                // Run OWASP ZAP scanning
-             def output = sh(script: 'zap.sh -cmd -quickurl ${targetUrl} -quickout zap-report.html 2>&1', returnStdout: true)
-             println "ZAP Output: ${output}"
-
-
+        stage('Run ZAP Security Scan') {
+            steps {
+                sh "zap.sh -cmd -quickurl http://35.88.88.115:8080 -quickout ${JENKINS_HOME}/workspace/zap-report.html"
+            }
         }
     }
-}
 
+    post {
+        always {
+            archiveArtifacts artifacts: "${JENKINS_HOME}/workspace/zap-report.html", allowEmptyArchive: true
+        }
     }
 }
