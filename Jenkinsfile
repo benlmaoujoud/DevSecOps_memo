@@ -63,7 +63,7 @@ pipeline {
             docker.withRegistry("https://${ecrRepoUrl}", 'ecr:us-west-2:aws-credentials') {
                 composeServices.each { service ->
 
-                    sh "docker tag ${service} ${ecrRepoUrl}/benlmaoujoud:${service}-latest"
+                    sh "docker tag ${service}:latest ${ecrRepoUrl}/benlmaoujoud:${service}-latest"
                     sh "docker push ${ecrRepoUrl}/benlmaoujoud:${service}-latest"
                 }
             }
