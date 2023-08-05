@@ -32,6 +32,8 @@ pipeline {
                     sh 'docker system prune -a --volumes'
                     sh 'docker-compose build'
                     sh 'docker images'
+                    echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ALL images @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#...."
+                    sh 'docker-compose config --services'
                 }
             }
         }
